@@ -2,22 +2,32 @@ defmodule EddieWeb.Router do
   use EddieWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, {EddieWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, {EddieWeb.LayoutView, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
+  end
+
+  pipeline :line_api do
+    plug(EddieWeb.Plugs.VerifySignature, Application.get_env(:eddie, :line)[:channel_secret])
   end
 
   scope "/", EddieWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    live "/", PageLive, :index
+    live("/", PageLive, :index)
+  end
+
+  scope "/line", EddieWeb do
+    pipe_through([:api, :line_api])
+
+    post("/hook", EventController, :process)
   end
 
   # Other scopes may use custom stacks.
@@ -36,8 +46,8 @@ defmodule EddieWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
-      live_dashboard "/dashboard", metrics: EddieWeb.Telemetry
+      pipe_through(:browser)
+      live_dashboard("/dashboard", metrics: EddieWeb.Telemetry)
     end
   end
 end
