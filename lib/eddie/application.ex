@@ -14,9 +14,10 @@ defmodule Eddie.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Eddie.PubSub},
       # Start the Endpoint (http/https)
-      EddieWeb.Endpoint
+      EddieWeb.Endpoint,
       # Start a worker by calling: Eddie.Worker.start_link(arg)
       # {Eddie.Worker, arg}
+      {Task.Supervisor, name: Eddie.EventSupervisor}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
