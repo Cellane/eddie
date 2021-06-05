@@ -20,6 +20,16 @@ defmodule Eddie.LINE.API do
     end
   end
 
+  def send_reply(messages, reply_token) do
+    with {:ok, response} <-
+           post("/message/reply", %{replyToken: reply_token, messages: messages}),
+         200 <- response.status() do
+      :ok
+    else
+      _ -> :error
+    end
+  end
+
   defp underscore_keys(nil), do: nil
 
   defp underscore_keys(%{} = map) do
