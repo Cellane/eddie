@@ -1,5 +1,6 @@
 defmodule Eddie.LINE.API do
   use Tesla
+  require Logger
 
   plug(Tesla.Middleware.BaseUrl, "https://api.line.me/v2/bot")
 
@@ -10,23 +11,40 @@ defmodule Eddie.LINE.API do
   plug(Tesla.Middleware.JSON)
 
   def profile(user_id) do
-    with {:ok, response} <- get("/profile/" <> user_id),
-         200 <- response.status(),
-         body <- response.body() |> underscore_keys do
-      {:ok, body}
-    else
-      {:error, error} -> {:error, error}
-      other -> {:error, other}
+    result = get("/profile/" <> user_id)
+
+    case result do
+      {:ok, response} ->
+        case response.status() do
+          200 ->
+            {:ok, response.body() |> underscore_keys()}
+
+          code ->
+            Logger.error(response.body())
+            {:error, code}
+        end
+
+      error ->
+        error
     end
   end
 
   def send_reply(messages, reply_token) do
-    with {:ok, response} <-
-           post("/message/reply", %{replyToken: reply_token, messages: messages}),
-         200 <- response.status() do
-      :ok
-    else
-      _ -> :error
+    result = post("/message/reply", %{replyToken: reply_token, messages: messages})
+
+    case result do
+      {:ok, response} ->
+        case response.status() do
+          200 ->
+            :ok
+
+          code ->
+            Logger.error(response.body())
+            {:error, code}
+        end
+
+      error ->
+        error
     end
   end
 

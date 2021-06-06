@@ -4,10 +4,10 @@ defmodule Eddie.Repo.Migrations.CreateLineUsers do
   def change do
     create table(:line_users) do
       add(:user_id, :string, null: false)
-      add(:display_name, :string, null: false)
+      add(:display_name, :string)
       add(:picture_url, :string)
-      add(:language, :string, null: false)
-      add(:followed_at, :naive_datetime, null: false)
+      add(:language, :string)
+      add(:followed_at, :naive_datetime)
       add(:unfollowed_at, :naive_datetime)
 
       timestamps()

@@ -103,4 +103,63 @@ defmodule Eddie.LINETest do
     #  assert %Ecto.Changeset{} = LINE.change_user(user)
     # end
   end
+
+  describe "group_chats" do
+    alias Eddie.LINE.GroupChat
+
+    @valid_attrs %{group_id: "some group_id"}
+    @update_attrs %{group_id: "some updated group_id"}
+    @invalid_attrs %{group_id: nil}
+
+    def group_chat_fixture(attrs \\ %{}) do
+      {:ok, group_chat} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> LINE.create_group_chat()
+
+      group_chat
+    end
+
+    test "list_group_chats/0 returns all group_chats" do
+      group_chat = group_chat_fixture()
+      assert LINE.list_group_chats() == [group_chat]
+    end
+
+    test "get_group_chat!/1 returns the group_chat with given id" do
+      group_chat = group_chat_fixture()
+      assert LINE.get_group_chat!(group_chat.id) == group_chat
+    end
+
+    test "create_group_chat/1 with valid data creates a group_chat" do
+      assert {:ok, %GroupChat{} = group_chat} = LINE.create_group_chat(@valid_attrs)
+      assert group_chat.group_id == "some group_id"
+    end
+
+    test "create_group_chat/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = LINE.create_group_chat(@invalid_attrs)
+    end
+
+    test "update_group_chat/2 with valid data updates the group_chat" do
+      group_chat = group_chat_fixture()
+      assert {:ok, %GroupChat{} = group_chat} = LINE.update_group_chat(group_chat, @update_attrs)
+      assert group_chat.group_id == "some updated group_id"
+    end
+
+    test "update_group_chat/2 with invalid data returns error changeset" do
+      group_chat = group_chat_fixture()
+      assert {:error, %Ecto.Changeset{}} = LINE.update_group_chat(group_chat, @invalid_attrs)
+      assert group_chat == LINE.get_group_chat!(group_chat.id)
+    end
+
+    test "delete_group_chat/1 deletes the group_chat" do
+      group_chat = group_chat_fixture()
+      assert {:ok, %GroupChat{}} = LINE.delete_group_chat(group_chat)
+      assert_raise Ecto.NoResultsError, fn -> LINE.get_group_chat!(group_chat.id) end
+    end
+
+    test "change_group_chat/1 returns a group_chat changeset" do
+      group_chat = group_chat_fixture()
+      assert %Ecto.Changeset{} = LINE.change_group_chat(group_chat)
+    end
+  end
 end
